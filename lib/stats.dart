@@ -46,6 +46,7 @@ class StatState extends State<Stats> {
         measureFn: (Stat amount, _) => amount.amount,
         colorFn: (Stat amount, _) => amount.color,
         data: StatData,
+        labelAccessorFn: (Stat row, _) => '${row.amount}',
         /*fillColorFn: (Stat amount, _) {
           if (amount.category == 'Food'){
           return charts.MaterialPalette.yellow.shadeDefault;}
@@ -91,7 +92,10 @@ class StatState extends State<Stats> {
       seriesList,
       animate: true,
       defaultRenderer: charts.ArcRendererConfig(
-         arcRendererDecorators: [charts.ArcLabelDecorator()]));
+         arcRendererDecorators: [charts.ArcLabelDecorator()]
+      )
+    );
+
   }
 
   @override
