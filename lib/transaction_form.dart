@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'bloc/transaction_bloc.dart';
 
-
 class TransactionForm extends StatefulWidget {
   final OTransaction transaction;
   final int transactionIndex;
@@ -24,7 +23,13 @@ class TransactionFormState extends State<TransactionForm> {
   String _name;
   int _amount;
   var datecontroller = TextEditingController();
-  final List<String> items = <String>['Category', 'Food', 'Clothing', 'Daily Needs', 'Miscellaneous'];
+  final List<String> items = <String>[
+    'Category',
+    'Food',
+    'Clothing',
+    'Daily Needs',
+    'Miscellaneous'
+  ];
   String selectedItem = 'Category';
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -32,15 +37,18 @@ class TransactionFormState extends State<TransactionForm> {
   DateTime _dateTime = DateTime.now();
   var date;
 
-  _transactionDate (BuildContext context) async{
-    var pickdate = await showDatePicker(context: context, initialDate: _dateTime, firstDate: DateTime(2000), lastDate: _dateTime);
+  _transactionDate(BuildContext context) async {
+    var pickdate = await showDatePicker(
+        context: context,
+        initialDate: _dateTime,
+        firstDate: DateTime(2000),
+        lastDate: _dateTime);
 
-    if (pickdate!=null){
+    if (pickdate != null) {
       setState(() {
-        date =pickdate;
+        date = pickdate;
 
         datecontroller.text = DateFormat('dd-MM-yyyy').format(date);
-
       });
     }
   }
@@ -50,8 +58,8 @@ class TransactionFormState extends State<TransactionForm> {
       initialValue: _name,
       decoration: InputDecoration(
         labelText: 'Name',
-        prefixIcon: InkWell(
-          child : Icon(Icons.person) ,
+        suffixIcon: InkWell(
+          child: Icon(Icons.person),
         ),
       ),
       //maxLength: 15,
@@ -73,9 +81,10 @@ class TransactionFormState extends State<TransactionForm> {
     return TextFormField(
       decoration: InputDecoration(
         labelText: 'Amount',
-        prefixIcon: InkWell(
-          child : Icon(Icons.attach_money) ,
-        ),  
+        suffixIcon: InkWell(
+          child: Icon(Icons.attach_money,
+          ),
+        ),
       ),
       keyboardType: TextInputType.number,
       style: TextStyle(fontSize: 28),
@@ -99,37 +108,52 @@ class TransactionFormState extends State<TransactionForm> {
       readOnly: true,
       controller: datecontroller,
       decoration: InputDecoration(
-        labelText: 'Date',
-        prefixIcon: InkWell(
-          onTap : (){
-            _transactionDate(context);
-          print(_dateTime);
-          },
-          child: Icon(Icons.calendar_today),
-        )
-      ),
+          labelText: 'Date',
+          suffixIcon: InkWell(
+            onTap: () {
+              _transactionDate(context);
+              print(_dateTime);
+            },
+            child: Icon(Icons.calendar_today),
+          )),
       style: TextStyle(fontSize: 28),
       validator: (String value) {
         return null;
       },
-    
     );
   }
 
   Widget _buildcategories(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical : 36.0),
+    return Container(
+      width: 370,
+      padding: const EdgeInsets.symmetric(vertical: 23.0, horizontal: 0.0),
       child: DropdownButton<String>(
+        icon: Icon(
+          Icons.arrow_drop_down,
+          size: 30,
+          color: Colors.black.withOpacity(0.55),
+        ),
+        //underline: Container(color:),
+        //iconSize: 25,
+        isExpanded: true,
+        underline: Container(color:Colors.black.withOpacity(0.55), height:1.0),
         value: selectedItem,
         onChanged: (String string) => setState(() => selectedItem = string),
         selectedItemBuilder: (BuildContext context) {
           return items.map<Widget>((String item) {
-            return Text(item);
+            return Text(
+              item,
+              style: TextStyle(
+                fontSize: 28,
+                color: Colors.black.withOpacity(0.55),
+              ),
+              textAlign: TextAlign.justify,
+            );
           }).toList();
         },
         items: items.map((String item) {
           return DropdownMenuItem<String>(
-            child: Text('$item'),
+            child: Text('$item', style: TextStyle(fontSize: 20)),
             value: item,
           );
         }).toList(),
@@ -162,14 +186,15 @@ class TransactionFormState extends State<TransactionForm> {
               _builddate(context),
               _buildcategories(context),
               SizedBox(height: 16),
-
               SizedBox(height: 20),
               widget.transaction == null
                   ? RaisedButton(
+                    padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 140.0),
                       child: Text(
                         'Submit',
-                        style: TextStyle(color: Colors.blue, fontSize: 16),
+                        style: TextStyle(color: Colors.white, fontSize: 16),
                       ),
+                      color: Colors.blue,
                       onPressed: () {
                         if (!_formKey.currentState.validate()) {
                           return;
@@ -178,18 +203,18 @@ class TransactionFormState extends State<TransactionForm> {
                         _formKey.currentState.save();
 
                         OTransaction trans = OTransaction(
-                          name: _name,
-                          amount: _amount,
-                          date : datecontroller.text
-                        );
+                            name: _name,
+                            amount: _amount,
+                            date: datecontroller.text);
 
                         DatabaseProvider.db.insert(trans).then(
-                              (storedtransaction) => BlocProvider.of<TransactionBloc>(context).add(
+                              (storedtransaction) =>
+                                  BlocProvider.of<TransactionBloc>(context).add(
                                 Addtransaction(storedtransaction),
                               ),
                             );
-                                                
-                          Navigator.pop(context);
+
+                        Navigator.pop(context);
                       },
                     )
                   : Row(
@@ -214,8 +239,11 @@ class TransactionFormState extends State<TransactionForm> {
                             );
 
                             DatabaseProvider.db.update(widget.transaction).then(
-                                  (storedtransaction) => BlocProvider.of<TransactionBloc>(context).add(
-                                    Updatetransaction(widget.transactionIndex, transaction),
+                                  (storedtransaction) =>
+                                      BlocProvider.of<TransactionBloc>(context)
+                                          .add(
+                                    Updatetransaction(
+                                        widget.transactionIndex, transaction),
                                   ),
                                 );
 
